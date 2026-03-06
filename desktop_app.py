@@ -404,7 +404,7 @@ class DesktopApp(QMainWindow):
                                           "results", "experiments.csv")
         os.makedirs(os.path.dirname(self.results_file), exist_ok=True)
 
-        self.setWindowTitle("Ontario Demand ML Lab — Regression Dashboard")
+        self.setWindowTitle("Regression Dashboard")
         self.setMinimumSize(1280, 800)
         self.setStyleSheet(STYLESHEET)
         self._build_ui()
@@ -421,7 +421,7 @@ class DesktopApp(QMainWindow):
 
         # Header
         header_layout = QHBoxLayout()
-        title = QLabel("ML Regression Lab")
+        title = QLabel("Regression Analysis with Machine Learning")
         title.setObjectName("headerLabel")
         sub = QLabel("Train • Evaluate • Visualize • Predict")
         sub.setObjectName("subHeaderLabel")
@@ -558,6 +558,15 @@ class DesktopApp(QMainWindow):
         self.save_btn.setIcon(qta.icon("fa5s.save", color="white"))
         self.save_btn.clicked.connect(self._save_results_dialog)
         ctrl_layout.addWidget(self.save_btn)
+
+        self.predict_btn = QPushButton(" Forecast Next Hour")
+        self.predict_btn.setIcon(qta.icon("fa5s.forward", color="white"))
+        self.predict_btn.clicked.connect(self._predict_next)
+        self.predict_btn.setStyleSheet(
+            f"QPushButton {{ background-color: {PRIMARY_GREEN}; font-size: 15px; padding: 14px; }}"
+            f"QPushButton:hover {{ background-color: {LIGHT_GREEN}; }}"
+        )
+        ctrl_layout.addWidget(self.predict_btn)
 
         right_layout.addWidget(ctrl_group)
 
@@ -837,6 +846,30 @@ class DesktopApp(QMainWindow):
         self._log("Results already saved to: " + self.results_file)
         QMessageBox.information(self, "Saved",
                                 f"Results appended to:\n{self.results_file}")
+
+    def _predict_next(self):
+        if self.pipeline.model is None:
+            QMessageBox.warning(self, "Warning", "Please run an experiment first to train a model.")
+            return
+
+        target_col = self.target_combo.currentText().strip()
+        history = self.history_spin.value()
+        
+        try:
+            next_val = self.pipeline.predict_next_value(target_col, history)
+            self._log(f"🔮 Predicted next {target_col}: {next_val:.2f} MW")
+            
+            QMessageBox.information(
+                self, 
+                "Future Forecast", 
+                f"Based on the trained {self.pipeline.model.__class__.__name__} "
+                f"and the last {history} hours of real data,\n\n"
+                f"The forecasted next {target_col} is:\n"
+                f"{next_val:.2f} MW"
+            )
+        except Exception as e:
+            self._log(f"Error predicting next value: {e}")
+            QMessageBox.critical(self, "Error", f"Could not predict next value:\n{e}")
 
     def _load_results_table(self):
         try:
