@@ -102,6 +102,21 @@ def run_experiment():
         return jsonify({'error': str(e)}), 400
 
 
+@app.route('/api/predict_next', methods=['POST'])
+def predict_next():
+    """Predict the next value based on recent history."""
+    data = request.json
+    target = data.get('target', '')
+    history = int(data.get('history', 5))
+
+    try:
+        next_val = pipeline.predict_next_value(target, history)
+        return jsonify({'next_value': next_val})
+    except Exception as e:
+        logger.error(f"Prediction error: {e}")
+        return jsonify({'error': str(e)}), 400
+
+
 @app.route('/api/run_multiple_experiments', methods=['POST'])
 def run_multiple_experiments():
     """Run multiple ML experiments in parallel."""
