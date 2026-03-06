@@ -151,6 +151,24 @@ class MLPipeline:
             return None, None
         return self.target.tolist(), self.predictions.tolist()
 
+    def predict_next_value(self, target_column, history_size):
+        """Predict the next future value based on the most recent history."""
+        if self.model is None:
+            raise ValueError("Model not trained. Please train a model first.")
+        
+        numeric_df = self.dataset.select_dtypes(include=[np.number])
+        target_series = numeric_df[target_column].values
+        
+        # Get the most recent `history_size` values
+        recent_history = target_series[-history_size:]
+        
+        # Scale the feature
+        recent_history_scaled = self.scaler.transform([recent_history])
+        
+        # Predict
+        prediction = self.model.predict(recent_history_scaled)
+        return prediction[0]
+
     def save_results(self, output_filepath, filename, history, regressor_name):
         """Append experiment results to CSV file."""
         os.makedirs(os.path.dirname(output_filepath) if os.path.dirname(output_filepath) else '.', exist_ok=True)
