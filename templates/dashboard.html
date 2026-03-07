@@ -1,1 +1,1796 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Ontario Demand ML Lab - Hybrid Machine Learning Platform for Regression Model Training and Evaluation">
+    <title>Ontario Demand ML Lab — Dashboard</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <style>
+        /* ═══════════════════════════════════════════════════
+           CSS DESIGN SYSTEM — GREEN-WHITE PROFESSIONAL THEME
+           ═══════════════════════════════════════════════════ */
+
+        :root {
+            --deep-green: #1B5E20;
+            --primary-green: #00B37E;
+            --mid-green: #00A372;
+            --light-green: #00D394;
+            --accent-green: #10B981;
+            --soft-green: #D1FAE5;
+            --surface-green: #F0FDF4;
+            --pale-green: #F8FAFC;
+
+            --bg-color: #F4F7F6;
+            --card-bg: #FFFFFF;
+            --sidebar-bg: #FFFFFF;
+            --sidebar-hover: #F0FDF4;
+            --sidebar-active: #00B37E;
+
+            --text-primary: #1F2937;
+            --text-secondary: #4B5563;
+            --text-muted: #9CA3AF;
+            --text-white: #FFFFFF;
+
+            --border: #D1D5DB;
+            --border-light: #E5E7EB;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-green: 0 4px 14px 0 rgba(0, 179, 126, 0.39);
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+
+            --transition: all 0.25s ease-in-out;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ─── SIDEBAR ─── */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--sidebar-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            border-right: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-brand {
+            padding: 28px 20px 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-brand .brand-icon {
+            font-size: 28px;
+            color: var(--primary-green);
+        }
+
+        .sidebar-brand div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-brand h1 {
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-brand p {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+
+        .nav-label {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 12px 14px 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            user-select: none;
+            background: transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--sidebar-hover);
+            color: var(--primary-green);
+        }
+
+        .nav-item.active {
+            background: var(--sidebar-active);
+            color: var(--text-white);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-item .nav-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .sidebar-footer p {
+            color: var(--text-muted);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* ─── MAIN CONTENT ─── */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 24px 30px 30px;
+        }
+
+        /* ─── HEADER ─── */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .page-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--deep-green);
+        }
+
+        .page-header .header-subtitle {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* ─── SECTIONS / PAGES ─── */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.35s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── METRIC CARDS ─── */
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .metric-icon-box {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            background: var(--surface-green);
+            color: var(--primary-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .metric-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-card .metric-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .metric-card .metric-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .metric-card .metric-detail {
+            font-size: 12px;
+            color: var(--accent-green);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ─── CARDS ─── */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-header .card-icon {
+            font-size: 18px;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* ─── FORMS ─── */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 11px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            background: white;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--light-green);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.12);
+        }
+
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23616161' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ─── BUTTONS ─── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 11px 22px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            user-select: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-green), var(--light-green));
+            color: white;
+            box-shadow: var(--shadow-green);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--surface-green);
+            color: var(--primary-green);
+            border: 1px solid var(--accent-green);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: #E53935;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #EF5350;
+        }
+
+        .btn-lg {
+            padding: 14px 32px;
+            font-size: 15px;
+            border-radius: var(--radius-md);
+        }
+
+        .btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ─── TABLE ─── */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead th {
+            background: var(--pale-green);
+            color: var(--text-secondary);
+            padding: 14px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        table tbody td {
+            padding: 14px 18px;
+            font-size: 14px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        table tbody tr {
+            transition: var(--transition);
+        }
+
+        table tbody tr:hover {
+            background: var(--surface-green);
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #FAFAFA;
+        }
+
+        table tbody tr:nth-child(even):hover {
+            background: var(--surface-green);
+        }
+
+        /* ─── CHART CONTAINERS ─── */
+        .chart-wrapper {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* ─── AI PREDICTOR ─── */
+        .ai-response {
+            background: linear-gradient(135deg, #F1F8E9, #E8F5E9);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            border: 1px solid var(--accent-green);
+            white-space: pre-wrap;
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text-primary);
+            min-height: 200px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* ─── SPINNER ─── */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(4px);
+        }
+
+        .loading-box {
+            background: white;
+            padding: 36px 48px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+
+        .loading-box .spinner-lg {
+            width: 44px;
+            height: 44px;
+            border: 4px solid var(--surface-green);
+            border-top-color: var(--primary-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        .loading-box p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ─── TOAST / NOTIFICATION ─── */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: white;
+            padding: 14px 22px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: slideIn 0.35s ease;
+            min-width: 280px;
+            border-left: 4px solid var(--light-green);
+        }
+
+        .toast.error {
+            border-left-color: #E53935;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ─── STATUS BADGE ─── */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: var(--surface-green);
+            color: var(--primary-green);
+        }
+
+        .badge-warning {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        /* ─── MOBILE HEADER & SIDEBAR ─── */
+        .mobile-header {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: white;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .mobile-header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: var(--text-primary);
+            font-size: 18px;
+        }
+
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-primary);
+            padding: 4px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 95;
+            backdrop-filter: blur(2px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .responsive-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 1024px) {
+            .mobile-header {
+                display: flex;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                z-index: 100;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .chart-grid,
+            .form-row,
+            .responsive-two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .main-content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════ MOBILE HEADER ═══════ -->
+    <div class="mobile-header">
+        <div class="mobile-header-brand">
+            <span style="font-size:24px;"><i class="fa-solid fa-graduation-cap"></i></span> Demand Analysis
+        </div>
+        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    </div>
+
+    <!-- ═══════ SIDEBAR OVERLAY ═══════ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileMenu()"></div>
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <span class="brand-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+            <div>
+                <h1>Demand Analysis</h1>
+                <p>Ontario Demand</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <div class="nav-item active" data-section="dashboard" id="nav-dashboard">
+                <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-section="experiment" id="nav-experiment">
+                <span class="nav-icon"><i class="fa-solid fa-rocket"></i></span>
+                <span>Run Experiment</span>
+            </div>
+            <div class="nav-item" data-section="results" id="nav-results">
+                <span class="nav-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+                <span>Results</span>
+            </div>
+
+            <div class="nav-label">Analytics</div>
+            <div class="nav-item" data-section="graphs" id="nav-graphs">
+                <span class="nav-icon"><i class="fa-solid fa-chart-pie"></i></span>
+                <span>Graph Analytics</span>
+            </div>
+            <div class="nav-item" data-section="ai-predictor" id="nav-ai">
+                <span class="nav-icon"><i class="fa-solid fa-robot"></i></span>
+                <span>AI Predictor</span>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <p>v1.0 • scikit-learn • Groq AI</p>
+        </div>
+    </aside>
+
+    <!-- ═══════ TOAST CONTAINER ═══════ -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ═══════ LOADING OVERLAY ═══════ -->
+    <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+        <div class="loading-box">
+            <div class="spinner-lg"></div>
+            <p id="loadingText">Training model...</p>
+        </div>
+    </div>
+
+    <!-- ═══════ MULTIPLE RUN MODAL ═══════ -->
+    <div class="loading-overlay" id="multiRunModal" style="display:none;">
+        <div class="card" style="width: 450px; margin: auto; max-width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div class="card-header">
+                <span class="card-icon"><i class="fa-solid fa-person-running"></i></span>
+                <h3>Multiple Run Experiment</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Select Regressors</label>
+                    <div style="display:flex; flex-direction: column; gap: 8px;">
+                        <label
+                            style="display: flex; gap: 8px; font-weight:500; font-size:13px; text-transform:none; cursor:pointer;"><input
+                                type="checkbox" class="multi-regressor" value="Linear Regression" checked> Linear
+                            Regression</label>
+                        <label
+                            style="display: flex; gap: 8px; font-weight:500; font-size:13px; text-transform:none; cursor:pointer;"><input
+                                type="checkbox" class="multi-regressor" value="Random Forest Regressor" checked> Random
+                            Forest Regressor</label>
+                        <label
+                            style="display: flex; gap: 8px; font-weight:500; font-size:13px; text-transform:none; cursor:pointer;"><input
+                                type="checkbox" class="multi-regressor" value="Gradient Boosting Regressor" checked>
+                            Gradient Boosting Regressor</label>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>History Sizes (comma-separated)</label>
+                    <input type="text" class="form-control" id="multiHistoryInput" value="5, 10, 15">
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>CV Folds (comma-separated)</label>
+                    <input type="text" class="form-control" id="multiFoldsInput" value="5">
+                </div>
+                <div class="btn-group" style="margin-top:20px;justify-content:flex-end; width:100%;">
+                    <button class="btn btn-secondary"
+                        onclick="document.getElementById('multiRunModal').style.display='none'">Cancel</button>
+                    <button class="btn btn-primary" onclick="runMultipleExperiments()"><i
+                            class="fa-solid fa-rocket"></i> Run All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ FORECAST MODAL ═══════ -->
+    <div class="loading-overlay" id="forecastModal" style="display:none;">
+        <div class="card" style="width: 450px; margin: auto; max-width: 90%; text-align: center;">
+            <div class="card-header"
+                style="justify-content: center; background: var(--surface-green); border-bottom: none; border-radius: var(--radius-md) var(--radius-md) 0 0; padding-top: 30px;">
+                <div
+                    style="width: 64px; height: 64px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-md); margin: 0 auto; color: var(--primary-green); font-size: 28px;">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+            </div>
+            <div class="card-body" style="padding: 10px 30px 30px;">
+                <h3 style="font-size: 22px; color: var(--deep-green); margin-bottom: 12px;">Future Forecast</h3>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 24px;" id="forecastText">
+                    Based on your trained model and the latest real data...
+                </p>
+                <div
+                    style="background: var(--surface-green); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--accent-green); margin-bottom: 24px;">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px;"
+                        id="forecastTargetName">Ontario_Demand_MW</div>
+                    <div style="font-size: 32px; font-weight: 800; color: var(--deep-green);" id="forecastValue">
+                        14176.65 MW</div>
+                </div>
+                <button class="btn btn-primary btn-lg" style="width: 100%; justify-content: center;"
+                    onclick="document.getElementById('forecastModal').style.display='none'">
+                    Awesome!
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ MAIN CONTENT ═══════ -->
+    <div class="main-content">
+
+        <!-- ═══════ DASHBOARD SECTION ═══════ -->
+        <div class="section active" id="section-dashboard">
+            <div class="page-header">
+                <div>
+                    <h2><i class="fa-solid fa-chart-line"></i> Dashboard</h2>
+                    <p class="header-subtitle">Overview of your ML experiments</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="refreshDashboard()"><i
+                            class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+                </div>
+            </div>
+
+            <div class="metrics-row">
+                <div class="metric-card">
+                    <div class="metric-icon-box"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="metric-content">
+                        <div class="metric-title">Total Experiments</div>
+                        <div class="metric-value" id="totalExperiments">0</div>
+                        <div class="metric-detail"><i class="fa-solid fa-arrow-trend-up"></i> logged in lab</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-box" style="background: #FFFBEB; color: #F59E0B;"><i
+                            class="fa-solid fa-bullseye"></i></div>
+                    <div class="metric-content">
+                        <div class="metric-title">Best MAE</div>
+                        <div class="metric-value" id="bestMAE">—</div>
+                        <div class="metric-detail" style="color: #F59E0B;"><i class="fa-solid fa-arrow-trend-down"></i>
+                            lowest error achieved</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-box" style="background: #EEF2FF; color: #6366F1;"><i
+                            class="fa-solid fa-gem"></i></div>
+                    <div class="metric-content">
+                        <div class="metric-title">Best R² Score</div>
+                        <div class="metric-value" id="bestR2">—</div>
+                        <div class="metric-detail" style="color: #6366F1;"><i class="fa-solid fa-arrow-trend-up"></i>
+                            highest fit score</div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon-box" style="background: #FEF2F2; color: #EF4444;"><i
+                            class="fa-solid fa-trophy"></i></div>
+                    <div class="metric-content">
+                        <div class="metric-title">Best Model</div>
+                        <div class="metric-value" id="bestModel" style="font-size: 18px;">—</div>
+                        <div class="metric-detail" style="color: #EF4444;"><i class="fa-solid fa-star"></i> ranked by R²
+                            score</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+                <div class="chart-wrapper">
+                    <h4 style="margin-bottom:12px;color:var(--text-primary);">MAE by Experiment</h4>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="dashMaeChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <h4 style="margin-bottom:12px;color:var(--text-primary);">R² Score by Experiment</h4>
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="dashR2Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-icon"><i class="fa-solid fa-clipboard-list"></i></span>
+                    <h3>Recent Experiments</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Filename</th>
+                                    <th>History</th>
+                                    <th>Regressor</th>
+                                    <th>MAE</th>
+                                    <th>MSE</th>
+                                    <th>R² Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashResultsBody">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px;">No
+                                        experiments yet. Run one to get started!</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ EXPERIMENT SECTION ═══════ -->
+        <div class="section" id="section-experiment">
+            <div class="page-header">
+                <div>
+                    <h2><i class="fa-solid fa-rocket"></i> Run Experiment</h2>
+                    <p class="header-subtitle">Configure and train a regression model</p>
+                </div>
+            </div>
+
+            <div class="responsive-two-col">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-gear"></i></span>
+                        <h3>Experiment Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Input CSV Dataset</label>
+                            <select class="form-control" id="datasetSelect">
+                                <option value="">— Select a dataset —</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Target Variable</label>
+                            <select class="form-control" id="targetSelect" disabled>
+                                <option value="">— Load dataset first —</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>History Window Size</label>
+                                <input type="number" class="form-control" id="historyInput" value="5" min="1" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label>Cross-Validation Folds</label>
+                                <input type="number" class="form-control" id="foldsInput" value="5" min="2" max="20">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Regression Algorithm</label>
+                            <select class="form-control" id="regressorSelect">
+                                <option value="Linear Regression">Linear Regression</option>
+                                <option value="Random Forest Regressor">Random Forest Regressor</option>
+                                <option value="Gradient Boosting Regressor">Gradient Boosting Regressor</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary btn-lg" id="runExperimentBtn" onclick="runExperiment()"
+                            style="width:100%;justify-content:center;margin-top:8px;">
+                            <i class="fa-solid fa-rocket"></i> Run Experiment
+                        </button>
+                        <button class="btn btn-secondary btn-lg" onclick="openMultiRunModal()"
+                            style="width:100%;justify-content:center;margin-top:8px;">
+                            <i class="fa-solid fa-person-running"></i> Multiple Run Experiment
+                        </button>
+                        <button class="btn btn-primary btn-lg" id="forecastNextBtn" onclick="predictNextHour()"
+                            style="width:100%;justify-content:center;margin-top:8px;background:var(--accent-green);color:white;border:none;">
+                            <i class="fa-solid fa-forward"></i> Forecast Next Hour
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="metrics-row">
+                        <div class="metric-card">
+                            <div class="metric-title">MAE</div>
+                            <div class="metric-value" id="expMAE">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">MSE</div>
+                            <div class="metric-value" id="expMSE">—</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-title">R² Score</div>
+                            <div class="metric-value" id="expR2">—</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-wrapper">
+                        <h4 style="margin-bottom:12px;color:var(--deep-green);">Actual vs Predicted</h4>
+                        <div id="scatterPlot" style="width:100%;height:340px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ RESULTS SECTION ═══════ -->
+        <div class="section" id="section-results">
+            <div class="page-header">
+                <div>
+                    <h2><i class="fa-solid fa-clipboard-list"></i> Experiment Results</h2>
+                    <p class="header-subtitle">History of all experiments</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadResults()"><i class="fa-solid fa-arrows-rotate"></i>
+                        Refresh</button>
+                    <button class="btn btn-danger" onclick="clearResults()"><i class="fa-solid fa-trash-can"></i> Clear
+                        All</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Filename</th>
+                                    <th>History</th>
+                                    <th>Regressor</th>
+                                    <th>MAE</th>
+                                    <th>MSE</th>
+                                    <th>R² Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody">
+                                <tr>
+                                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px;">No
+                                        results yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ GRAPHS SECTION ═══════ -->
+        <div class="section" id="section-graphs">
+            <div class="page-header">
+                <div>
+                    <h2><i class="fa-solid fa-chart-pie"></i> Graph Analytics</h2>
+                    <p class="header-subtitle">Visual comparison of experiment metrics</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="loadGraphs()"><i class="fa-solid fa-arrows-rotate"></i>
+                        Refresh Charts</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="chart-grid">
+                        <div class="chart-wrapper">
+                            <h4 style="margin-bottom:12px;color:var(--text-primary);">Mean Absolute Error (Lower is
+                                Better)</h4>
+                            <div style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="maeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <h4 style="margin-bottom:12px;color:var(--text-primary);">Mean Squared Error</h4>
+                            <div style="position: relative; height: 300px; width: 100%;">
+                                <canvas id="mseChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-wrapper" style="margin-top:20px;">
+                        <h4 style="margin-bottom:12px;color:var(--text-primary);">R² Score (Higher is Better)</h4>
+                        <div style="position: relative; height: 300px; width: 100%;">
+                            <canvas id="r2Chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ AI PREDICTOR SECTION ═══════ -->
+        <div class="section" id="section-ai-predictor">
+            <div class="page-header">
+                <div>
+                    <h2><i class="fa-solid fa-robot"></i> AI Predictor</h2>
+                    <p class="header-subtitle">Get AI-powered insights about your experiments</p>
+                </div>
+            </div>
+
+            <div class="responsive-two-col">
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="card" style="margin-bottom:0px;">
+                        <div class="card-header">
+                            <span class="card-icon">🔑</span>
+                            <h3>Groq API Configuration</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Groq API Key</label>
+                                <input type="password" class="form-control" id="apiKeyInput"
+                                    placeholder="Enter your Groq API key...">
+                            </div>
+                            <p style="font-size:11px;color:var(--text-muted);margin-top:-10px;">
+                                Get your key at <a href="https://console.groq.com" target="_blank"
+                                    style="color:var(--primary-green);">console.groq.com</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-icon">💬</span>
+                            <h3>Analysis Query</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Your Question</label>
+                                <textarea class="form-control" id="aiQueryInput" rows="4"
+                                    placeholder="Ask anything about your experiments...&#10;e.g., 'Why does Random Forest outperform Linear Regression?'"></textarea>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-primary" onclick="runAIAnalysis()"><i
+                                        class="fa-solid fa-robot"></i> Analyze with AI</button>
+                                <button class="btn btn-secondary" onclick="autoAIAnalysis()"><i
+                                        class="fa-solid fa-bolt"></i> Auto-Analyze</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="align-self:start;">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-lightbulb"></i></span>
+                        <h3>AI Response</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="ai-response" id="aiResponseArea">
+                            AI analysis will appear here...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end main-content -->
+
+
+    <!-- ═══════════════════════════════════════════════════
+         JAVASCRIPT
+         ═══════════════════════════════════════════════════ -->
+    <script>
+        // ─── State ───
+        let experimentResults = [];
+        let currentDatasetPath = '';
+        let dashMaeChart = null;
+        let dashR2Chart = null;
+        let maeChart = null;
+        let mseChart = null;
+        let r2Chart = null;
+
+        // ─── Navigation ───
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                navigateTo(section);
+            });
+        });
+
+        function navigateTo(sectionId) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            document.getElementById(`section-${sectionId}`).classList.add('active');
+
+            if (sectionId === 'dashboard') refreshDashboard();
+            if (sectionId === 'results') loadResults();
+            if (sectionId === 'graphs') loadGraphs();
+        }
+
+        // ─── Toast Notifications ───
+        function showToast(message, isError = false) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast${isError ? ' error' : ''}`;
+            toast.innerHTML = `<span>${isError ? '❌' : '✅'}</span> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 4000);
+        }
+
+        // ─── Loading Overlay ───
+        function showLoading(text = 'Processing...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // ─── Load Datasets ───
+        async function loadDatasets() {
+            try {
+                const res = await fetch('/api/datasets');
+                const datasets = await res.json();
+                const select = document.getElementById('datasetSelect');
+                select.innerHTML = '<option value="">— Select a dataset —</option>';
+                datasets.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.path;
+                    opt.textContent = `${d.name} (${(d.size / 1024).toFixed(1)} KB)`;
+                    select.appendChild(opt);
+                });
+            } catch (e) {
+                showToast('Failed to load datasets', true);
+            }
+        }
+
+        // ─── Dataset Change → Load Columns ───
+        document.getElementById('datasetSelect').addEventListener('change', async function () {
+            const filepath = this.value;
+            const targetSelect = document.getElementById('targetSelect');
+
+            if (!filepath) {
+                targetSelect.disabled = true;
+                targetSelect.innerHTML = '<option value="">— Load dataset first —</option>';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/columns', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filepath })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                targetSelect.disabled = false;
+                targetSelect.innerHTML = '';
+                data.columns.forEach(col => {
+                    const opt = document.createElement('option');
+                    opt.value = col;
+                    opt.textContent = col;
+                    targetSelect.appendChild(opt);
+                });
+                currentDatasetPath = filepath;
+                showToast(`Dataset loaded: ${data.rows.toLocaleString()} rows`);
+            } catch (e) {
+                showToast(`Error: ${e.message}`, true);
+            }
+        });
+
+        // ─── Run Experiment ───
+        async function runExperiment() {
+            const filepath = document.getElementById('datasetSelect').value;
+            const target = document.getElementById('targetSelect').value;
+            const history = parseInt(document.getElementById('historyInput').value);
+            const regressor = document.getElementById('regressorSelect').value;
+            const n_folds = parseInt(document.getElementById('foldsInput').value);
+
+            if (!filepath) { showToast('Please select a dataset', true); return; }
+            if (!target) { showToast('Please select a target variable', true); return; }
+
+            const btn = document.getElementById('runExperimentBtn');
+            btn.disabled = true;
+            showLoading(`Training ${regressor}...`);
+
+            try {
+                const res = await fetch('/api/run_experiment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filepath, target, history, regressor, n_folds })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                // Update metrics
+                document.getElementById('expMAE').textContent = data.metrics.MAE.toFixed(4);
+                document.getElementById('expMSE').textContent = data.metrics.MSE.toFixed(4);
+                document.getElementById('expR2').textContent = data.metrics.R2_Score.toFixed(4);
+
+                // Scatter plot
+                if (data.actual && data.predicted) {
+                    plotScatter(data.actual, data.predicted);
+                }
+
+                hideLoading();
+                showToast(`Experiment complete! R²: ${data.metrics.R2_Score.toFixed(4)}`);
+            } catch (e) {
+                hideLoading();
+                showToast(`Error: ${e.message}`, true);
+            }
+            btn.disabled = false;
+        }
+
+        // ─── Multiple Run Experiments ───
+        function openMultiRunModal() {
+            document.getElementById('multiRunModal').style.display = 'flex';
+        }
+
+        async function runMultipleExperiments() {
+            const filepath = document.getElementById('datasetSelect').value;
+            const target = document.getElementById('targetSelect').value;
+
+            if (!filepath) { showToast('Please select a dataset', true); return; }
+            if (!target) { showToast('Please select a target variable', true); return; }
+
+            const regressors = Array.from(document.querySelectorAll('.multi-regressor:checked')).map(cb => cb.value);
+            const histories = document.getElementById('multiHistoryInput').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            const folds = document.getElementById('multiFoldsInput').value.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+
+            if (!regressors.length || !histories.length || !folds.length) {
+                showToast('Invalid input. Check fields.', true); return;
+            }
+
+            document.getElementById('multiRunModal').style.display = 'none';
+            showLoading(`Running multiple experiments in background...`);
+
+            try {
+                const res = await fetch('/api/run_multiple_experiments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filepath, target, histories, regressors, folds })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                hideLoading();
+                showToast(`Successfully completed ${data.total} experiments!`);
+                refreshDashboard();
+                navigateTo('results');
+            } catch (e) {
+                hideLoading();
+                showToast(`Error: ${e.message}`, true);
+            }
+        }
+
+        // ─── Predict Next Hour ───
+        async function predictNextHour() {
+            const filepath = document.getElementById('datasetSelect').value;
+            const target = document.getElementById('targetSelect').value;
+            const history = parseInt(document.getElementById('historyInput').value);
+
+            if (!filepath) { showToast('Please select a dataset', true); return; }
+            if (!target) { showToast('Please select a target variable', true); return; }
+
+            const btn = document.getElementById('forecastNextBtn');
+            btn.disabled = true;
+            showLoading(`Forecasting next hour for ${target}...`);
+
+            try {
+                const res = await fetch('/api/predict_next', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ target, history })
+                });
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+
+                hideLoading();
+                document.getElementById('forecastText').innerText = `Based on your trained model and the latest ${history} hours of real data, the forecasted next value is:`;
+                document.getElementById('forecastTargetName').innerText = target;
+                document.getElementById('forecastValue').innerText = `${data.next_value.toFixed(2)} MW`;
+                document.getElementById('forecastModal').style.display = 'flex';
+            } catch (e) {
+                hideLoading();
+                showToast(`Error predicting: ${e.message}`, true);
+            }
+            btn.disabled = false;
+        }
+
+        // ─── Scatter Plot (Plotly) ───
+        function plotScatter(actual, predicted) {
+            const trace1 = {
+                x: actual, y: predicted,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Predictions',
+                marker: {
+                    color: '#4CAF50',
+                    size: 5,
+                    opacity: 0.5,
+                    line: { color: '#1B5E20', width: 0.5 }
+                }
+            };
+            const minVal = Math.min(...actual, ...predicted);
+            const maxVal = Math.max(...actual, ...predicted);
+            const trace2 = {
+                x: [minVal, maxVal], y: [minVal, maxVal],
+                mode: 'lines',
+                name: 'Perfect',
+                line: { color: '#E53935', dash: 'dash', width: 2 }
+            };
+            const layout = {
+                xaxis: { title: 'Actual Values', gridcolor: '#E0E0E0' },
+                yaxis: { title: 'Predicted Values', gridcolor: '#E0E0E0' },
+                plot_bgcolor: 'white',
+                paper_bgcolor: 'white',
+                margin: { l: 50, r: 20, t: 20, b: 50 },
+                font: { family: 'Inter', size: 12, color: '#212121' },
+                showlegend: true,
+                legend: { x: 0.02, y: 0.98 }
+            };
+            Plotly.newPlot('scatterPlot', [trace1, trace2], layout, { responsive: true });
+        }
+
+        // ─── Load Results ───
+        async function loadResults() {
+            try {
+                const res = await fetch('/api/results');
+                experimentResults = await res.json();
+                renderResultsTable('resultsTableBody');
+            } catch (e) {
+                showToast('Failed to load results', true);
+            }
+        }
+
+        function renderResultsTable(tbodyId) {
+            const tbody = document.getElementById(tbodyId);
+            if (!experimentResults.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:30px;">No results yet</td></tr>';
+                return;
+            }
+            tbody.innerHTML = experimentResults.map((r, i) =>
+                `<tr>
+                    <td>${i + 1}</td>
+                    <td>${r.Filename || '—'}</td>
+                    <td>${r.History || '—'}</td>
+                    <td><span class="badge badge-success">${r.Regressor || '—'}</span></td>
+                    <td>${typeof r.MAE === 'number' ? r.MAE.toFixed(4) : r.MAE}</td>
+                    <td>${typeof r.MSE === 'number' ? r.MSE.toFixed(4) : r.MSE}</td>
+                    <td><strong>${typeof r.R2_Score === 'number' ? r.R2_Score.toFixed(4) : r.R2_Score}</strong></td>
+                </tr>`
+            ).join('');
+        }
+
+        async function clearResults() {
+            if (!confirm('Clear all experiment results?')) return;
+            try {
+                await fetch('/api/clear_results', { method: 'POST' });
+                experimentResults = [];
+                loadResults();
+                showToast('Results cleared');
+            } catch (e) {
+                showToast('Failed to clear results', true);
+            }
+        }
+
+        // ─── Dashboard Refresh ───
+        async function refreshDashboard() {
+            try {
+                const res = await fetch('/api/results');
+                experimentResults = await res.json();
+
+                document.getElementById('totalExperiments').textContent = experimentResults.length;
+
+                if (experimentResults.length > 0) {
+                    const maes = experimentResults.map(r => parseFloat(r.MAE)).filter(v => !isNaN(v));
+                    const r2s = experimentResults.map(r => parseFloat(r.R2_Score)).filter(v => !isNaN(v));
+
+                    document.getElementById('bestMAE').textContent = maes.length ? Math.min(...maes).toFixed(4) : '—';
+                    document.getElementById('bestR2').textContent = r2s.length ? Math.max(...r2s).toFixed(4) : '—';
+
+                    if (r2s.length) {
+                        const bestIdx = r2s.indexOf(Math.max(...r2s));
+                        document.getElementById('bestModel').textContent = experimentResults[bestIdx].Regressor || '—';
+                    }
+
+                    renderResultsTable('dashResultsBody');
+                    renderDashCharts();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ─── Dashboard Charts ───
+        function renderDashCharts() {
+            if (!experimentResults.length) return;
+            const labels = experimentResults.map((r, i) =>
+                [`${(r.Regressor || '').split(' ')[0]}`, `(H=${r.History})`]
+            );
+            const maes = experimentResults.map(r => parseFloat(r.MAE));
+            const r2s = experimentResults.map(r => parseFloat(r.R2_Score));
+
+            const greenGradient = ['#00B37E', '#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#D1FAE5', '#029668', '#007552'];
+            const getColors = (arr) => arr.map((_, i) => greenGradient[i % greenGradient.length]);
+
+            // MAE Chart
+            if (dashMaeChart) dashMaeChart.destroy();
+            dashMaeChart = new Chart(document.getElementById('dashMaeChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'MAE',
+                        data: maes,
+                        backgroundColor: getColors(maes),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: chartOptions('MAE')
+            });
+
+            // R² Chart
+            if (dashR2Chart) dashR2Chart.destroy();
+            dashR2Chart = new Chart(document.getElementById('dashR2Chart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'R² Score',
+                        data: r2s,
+                        backgroundColor: getColors(r2s),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: chartOptions('R² Score')
+            });
+        }
+
+        // ─── Graph Analytics ───
+        async function loadGraphs() {
+            try {
+                const res = await fetch('/api/results');
+                experimentResults = await res.json();
+                if (!experimentResults.length) {
+                    showToast('No results to graph', true);
+                    return;
+                }
+                renderAnalyticsCharts();
+            } catch (e) {
+                showToast('Failed to load graph data', true);
+            }
+        }
+
+        function renderAnalyticsCharts() {
+            const labels = experimentResults.map((r, i) =>
+                [`${(r.Regressor || '').split(' ')[0]}`, `(H=${r.History})`]
+            );
+            const maes = experimentResults.map(r => parseFloat(r.MAE));
+            const mses = experimentResults.map(r => parseFloat(r.MSE));
+            const r2s = experimentResults.map(r => parseFloat(r.R2_Score));
+
+            const colors = ['#00B37E', '#10B981', '#34D399', '#6EE7B7', '#A7F3D0', '#D1FAE5', '#029668', '#007552'];
+            const getColors = (arr) => arr.map((_, i) => colors[i % colors.length]);
+
+            if (maeChart) maeChart.destroy();
+            maeChart = new Chart(document.getElementById('maeChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'MAE',
+                        data: maes,
+                        backgroundColor: getColors(maes),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: chartOptions('MAE')
+            });
+
+            if (mseChart) mseChart.destroy();
+            mseChart = new Chart(document.getElementById('mseChart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'MSE',
+                        data: mses,
+                        backgroundColor: getColors(mses),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: chartOptions('MSE')
+            });
+
+            if (r2Chart) r2Chart.destroy();
+            r2Chart = new Chart(document.getElementById('r2Chart'), {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'R² Score',
+                        data: r2s,
+                        backgroundColor: getColors(r2s),
+                        borderRadius: 4,
+                        borderSkipped: false
+                    }]
+                },
+                options: chartOptions('R² Score')
+            });
+        }
+
+        function chartOptions(yLabel) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#1B5E20',
+                        titleFont: { family: 'Inter', weight: 600 },
+                        bodyFont: { family: 'Inter' },
+                        cornerRadius: 8,
+                        padding: 12
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: yLabel, font: { family: 'Inter', weight: 600, size: 12 } },
+                        grid: { color: '#F0F0F0' },
+                        ticks: { font: { family: 'Inter', size: 11 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter', size: 11 }, maxRotation: 30 }
+                    }
+                },
+                animation: {
+                    duration: 800,
+                    easing: 'easeOutQuart'
+                }
+            };
+        }
+
+        // ─── AI Predictor ───
+        async function runAIAnalysis() {
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+            const query = document.getElementById('aiQueryInput').value.trim();
+            const responseArea = document.getElementById('aiResponseArea');
+
+            responseArea.textContent = '<i class="fa-solid fa-hourglass-half"></i> Analyzing your experiments...';
+
+            try {
+                const res = await fetch('/api/ai_analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey, query })
+                });
+                const data = await res.json();
+                responseArea.textContent = data.response;
+                showToast('AI analysis complete');
+            } catch (e) {
+                responseArea.textContent = `Error: ${e.message}`;
+                showToast('AI analysis failed', true);
+            }
+        }
+
+        async function autoAIAnalysis() {
+            document.getElementById('aiQueryInput').value = '';
+            const responseArea = document.getElementById('aiResponseArea');
+            responseArea.textContent = '<i class="fa-solid fa-hourglass-half"></i> Running automatic analysis...';
+
+            const apiKey = document.getElementById('apiKeyInput').value.trim();
+
+            try {
+                const res = await fetch('/api/ai_analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: apiKey, query: '' })
+                });
+                const data = await res.json();
+                responseArea.textContent = data.response;
+                showToast('Auto-analysis complete');
+            } catch (e) {
+                responseArea.textContent = `Error: ${e.message}`;
+                showToast('Auto-analysis failed', true);
+            }
+        }
+
+        // ─── Init ───
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDatasets();
+            refreshDashboard();
+        });
+
+        // ─── Mobile Menu ───
+        function toggleMobileMenu() {
+            const sidebar = document.querySelector('.sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+        }
+    </script>
+</body>
+
+</html>
